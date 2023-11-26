@@ -13,5 +13,5 @@ func NewRouter(uc controller.IUserController) *echo.Echo {
 	e.POST("/login", uc.LogIn)
 	e.POST("/logout", uc.LogOut)
 
-	rerutn e
+	return e
 }

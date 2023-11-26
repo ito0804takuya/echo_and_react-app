@@ -71,7 +71,7 @@ func (uc *userController) LogOut(c echo.Context) error {
 	cookie := new(http.Cookie)
 	cookie.Name = "token"
 	cookie.Value = "" // クリア
-	cookie.Expires = time.Noe()
+	cookie.Expires = time.Now()
 	cookie.Path = "/"
 	cookie.Domain = os.Getenv("API_DOMAIN")
 	// cookie.Secure = true
