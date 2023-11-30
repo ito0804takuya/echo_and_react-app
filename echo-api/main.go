@@ -6,6 +6,7 @@ import (
 	"echo-api/repository"
 	"echo-api/router"
 	"echo-api/usecase"
+	"echo-api/validator"
 )
 
 func main() {
@@ -13,12 +14,14 @@ func main() {
 
 	// user
 	userRepository := repository.NewUserRepository(db)
-	userUsecase := usecase.NewUserUsecase(userRepository)
+	userValidator := validator.NewUserValidator()
+	userUsecase := usecase.NewUserUsecase(userRepository, userValidator)
 	userController := controller.NewUserController(userUsecase)
 
 	// task
 	taskRepository := repository.NewTaskRepository(db)
-	taskUsecase := usecase.NewTaskUsecase(taskRepository)
+	taskValidator := validator.NewTaskValidator()
+	taskUsecase := usecase.NewTaskUsecase(taskRepository, taskValidator)
 	taskController := controller.NewTaskController(taskUsecase)
 
 	e := router.NewRouter(userController, taskController)

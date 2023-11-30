@@ -3,6 +3,7 @@ package usecase
 import (
 	"echo-api/model"
 	"echo-api/repository"
+	"echo-api/validator"
 	"os"
 	"time"
 
@@ -18,14 +19,19 @@ type IUserUsecase interface {
 // Usecaseが（Repositoryでなく）Repositoryのインターフェースに依存する
 type userUsecase struct {
 	ur repository.IUserRepository
+	uv validator.IUserValidator
 }
 
 // Repositoryのインターフェースを注入（DI）するためのコンストラクタ
-func NewUserUsecase(ur repository.IUserRepository) IUserUsecase {
-	return &userUsecase{ur}
+func NewUserUsecase(ur repository.IUserRepository, uv validator.IUserValidator) IUserUsecase {
+	return &userUsecase{ur, uv}
 }
 
 func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
+	if err := uu.uv.UserValidate(user); err != nil {
+		return model.UserResponse{}, err
+	}
+
 	// 平文のパスワードをハッシュ化
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
@@ -46,6 +52,10 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 }
 
 func (uu *userUsecase) Login(user model.User) (string, error) {
+	if err := uu.uv.UserValidate(user); err != nil {
+		return "", err
+	}
+
 	storedUser := model.User{}
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
 		return "", err
